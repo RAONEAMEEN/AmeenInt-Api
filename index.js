@@ -1,6 +1,9 @@
 const express = require('express');
 const axios = require('axios');
+const FormData = require('form-data');
 const app = express();
+
+app.use(express.json());
 
 app.get('/insta', async (req, res) => {
     const { url } = req.query;
@@ -10,46 +13,35 @@ app.get('/insta', async (req, res) => {
     }
 
     try {
-        // Prepare the URL for the saveinsta.io video downloader
-        const downloadUrl = `https://saveinsta.io/video-downloader/`;
-        
-        // Submit the Instagram URL
-        const response = await axios.post(downloadUrl, new URLSearchParams({ url }), {
+        const form = new FormData();
+        form.append('url', url);
+
+        const response = await axios.post('https://instagram-video-or-images-downloader.p.rapidapi.com/', form, {
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                ...form.getHeaders(),
+                'x-rapidapi-host': 'instagram-video-or-images-downloader.p.rapidapi.com',
+                'x-rapidapi-key': '39ce9b146amshe05750fd94b0194p1f30fejsn181801eeeb08'
             }
         });
 
-        // Log the response data for debugging
         console.log(`Response Status: ${response.status}`);
         console.log(`Response Data: ${JSON.stringify(response.data)}`);
 
         if (response.status === 200) {
-            // Assuming response data contains the download link
-            const downloadPageUrl = response.data; // Adjust based on actual response structure
-
-            // Fetch the actual download link from the download page
-            const downloadResponse = await axios.get(downloadPageUrl);
-            const mediaLink = extractMediaLinkFromPage(downloadResponse.data);
-
-            res.json({ status: 200, media: [mediaLink] });
+            const mediaLinks = response.data; // Adjust based on the actual response structure
+            res.json({ status: 200, media: mediaLinks });
         } else {
-            res.status(500).json({ status: 500, message: 'Failed to fetch media link' });
+            res.status(500).json({ status: 500, message: 'Unexpected response from API' });
         }
     } catch (error) {
-        console.error('Error fetching media link:', error.message);
-        res.status(500).json({ status: 500, message: 'An error occurred', error: error.message || 'Unknown error' });
+        console.error('Error fetching media link:', error.response ? error.response.data : error.message);
+        res.status(500).json({
+            status: 500,
+            message: 'An error occurred',
+            error: error.response ? error.response.data : error.message
+        });
     }
 });
-
-// Function to extract media link from the download page (example placeholder)
-function extractMediaLinkFromPage(html) {
-    // Parse the HTML to find the media link. You might need a library like cheerio for this.
-    // Example placeholder logic:
-    const mediaLinkRegex = /href="([^"]+)"/;
-    const match = html.match(mediaLinkRegex);
-    return match ? match[1] : null;
-}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
