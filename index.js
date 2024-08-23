@@ -14,10 +14,10 @@ app.get('/insta', async (req, res) => {
         const encodedUrl = encodeURIComponent(url);
         const saveInstaUrl = `https://saveinsta.io/dl.php?url=${encodedUrl}`;
 
-        // Make a request to the saveinsta.io download link
+        // Make a request to saveinsta.io to get the media link
         const response = await axios.get(saveInstaUrl);
 
-        // Check if the response is successful and contains the media
+        // If successful, return the media link in the same format as your friend's API
         if (response.status === 200) {
             res.json({ status: 200, media: [saveInstaUrl] });
         } else {
@@ -25,7 +25,7 @@ app.get('/insta', async (req, res) => {
         }
     } catch (error) {
         console.error('Error fetching media link:', error.message);
-        res.status(500).json({ status: 500, message: 'An error occurred', error: error.message });
+        res.status(500).json({ status: 500, message: 'An error occurred', error: error.message || 'Unknown error' });
     }
 });
 
