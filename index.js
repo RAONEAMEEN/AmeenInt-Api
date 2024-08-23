@@ -10,16 +10,29 @@ app.get('/insta', async (req, res) => {
     }
 
     try {
-        // Encode the Instagram URL for use in the saveinsta.io link
-        const encodedUrl = encodeURIComponent(url);
-        const saveInstaUrl = `https://saveinsta.io/dl.php?url=${encodedUrl}`;
+        // Prepare the URL for the saveinsta.io video downloader
+        const downloadUrl = `https://saveinsta.io/video-downloader/`;
+        
+        // Submit the Instagram URL
+        const response = await axios.post(downloadUrl, new URLSearchParams({ url }), {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
 
-        // Make a request to saveinsta.io to get the media link
-        const response = await axios.get(saveInstaUrl);
+        // Log the response data for debugging
+        console.log(`Response Status: ${response.status}`);
+        console.log(`Response Data: ${JSON.stringify(response.data)}`);
 
-        // If successful, return the media link in the same format as your friend's API
         if (response.status === 200) {
-            res.json({ status: 200, media: [saveInstaUrl] });
+            // Assuming response data contains the download link
+            const downloadPageUrl = response.data; // Adjust based on actual response structure
+
+            // Fetch the actual download link from the download page
+            const downloadResponse = await axios.get(downloadPageUrl);
+            const mediaLink = extractMediaLinkFromPage(downloadResponse.data);
+
+            res.json({ status: 200, media: [mediaLink] });
         } else {
             res.status(500).json({ status: 500, message: 'Failed to fetch media link' });
         }
@@ -28,6 +41,15 @@ app.get('/insta', async (req, res) => {
         res.status(500).json({ status: 500, message: 'An error occurred', error: error.message || 'Unknown error' });
     }
 });
+
+// Function to extract media link from the download page (example placeholder)
+function extractMediaLinkFromPage(html) {
+    // Parse the HTML to find the media link. You might need a library like cheerio for this.
+    // Example placeholder logic:
+    const mediaLinkRegex = /href="([^"]+)"/;
+    const match = html.match(mediaLinkRegex);
+    return match ? match[1] : null;
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
