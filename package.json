@@ -9,10 +9,10 @@
   "dependencies": {
     "axios": "^0.27.2",
     "form-data": "^4.0.0",
-    "express": "^4.17.1" // Include express if you're using it for your server
+    "express": "^4.17.1" 
   },
   "devDependencies": {
-    "nodemon": "^2.0.15" // Optional: for development purposes
+    "nodemon": "^2.0.15" 
   },
   "engines": {
     "node": ">=14.x"
