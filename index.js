@@ -10,20 +10,21 @@ app.get('/insta', async (req, res) => {
     }
 
     try {
-        const saveInstaResponse = await axios.get(`https://saveinsta.io/api/ajaxSearch.php`, {
-            params: {
-                q: url
-            }
-        });
+        // Encode the Instagram URL for use in the saveinsta.io link
+        const encodedUrl = encodeURIComponent(url);
+        const saveInstaUrl = `https://saveinsta.io/dl.php?url=${encodedUrl}`;
 
-        const media = saveInstaResponse.data.data.media;
+        // Make a request to the saveinsta.io download link
+        const response = await axios.get(saveInstaUrl);
 
-        if (media && media.length > 0) {
-            res.json({ status: 200, media });
+        // Check if the response is successful and contains the media
+        if (response.status === 200) {
+            res.json({ status: 200, media: [saveInstaUrl] });
         } else {
             res.status(500).json({ status: 500, message: 'Failed to fetch media link' });
         }
     } catch (error) {
+        console.error('Error fetching media link:', error.message);
         res.status(500).json({ status: 500, message: 'An error occurred', error: error.message });
     }
 });
