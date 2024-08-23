@@ -1,12 +1,22 @@
 {
-  "name": "instagram-download-api",
+  "name": "instagram-downloader",
   "version": "1.0.0",
+  "description": "A Node.js app for downloading Instagram videos and images using RapidAPI.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "axios": "^0.21.1"
-  }
+    "axios": "^0.27.2",
+    "form-data": "^4.0.0",
+    "express": "^4.17.1" // Include express if you're using it for your server
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15" // Optional: for development purposes
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
+  "author": "Your Name",
+  "license": "ISC"
 }
